@@ -1,6 +1,8 @@
+import json
 import logging
 import sys
 
+from lxml import etree
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
@@ -8,12 +10,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-from constants import Locators, TIMEOUT
+from constants import Locators, TIMEOUT, SHIP_URL
 
 
 class VesselFinder:
     """
-    Class accessing data from .
+    Class for accessing marinetraffic.com page.
     """
     def __init__(self):
         """
@@ -28,7 +30,8 @@ class VesselFinder:
     def run(cls, imo_number):
         vessel_finder = VesselFinder()
         try:
-            vessel_finder.vessel_info(imo_number)
+            data = vessel_finder.vessel_info(imo_number)
+            logging.info(data)
         except Exception:
             raise
         finally:
@@ -36,7 +39,7 @@ class VesselFinder:
 
     def cookie_consent(self):
         """
-        Find and accept cookies consent.
+        Accept cookies.
         """
         logging.info("Accepting cookies.")
         try:
@@ -53,9 +56,11 @@ class VesselFinder:
         :param imo_number: International Maritime Organization (IMO) number
         :return: dictionary with vessel info
         """
-        logging.info("Opening marinetraffic.com page.")
-        self.driver.get(f"https://www.marinetraffic.com/pl/ais/details/ships//imo:{imo_number}")
+        logging.info(f"Opening marinetraffic.com page with info about vessel: {imo_number}")
+        self.driver.get(f"{SHIP_URL}imo:{imo_number}")
         self.cookie_consent()
+        page = etree.HTML(self.driver.page_source)
+        return json.loads(page.xpath(Locators.SHIP_DATA)[-1].replace("  ", ""))
 
     def close_page(self):
         """
