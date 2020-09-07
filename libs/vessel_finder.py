@@ -10,7 +10,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-from constants import Locators, TIMEOUT, SHIP_URL
+from libs.constants import Locators, TIMEOUT, PAGE_URL
+from libs.types import Vessel
 
 
 class VesselFinder:
@@ -30,12 +31,11 @@ class VesselFinder:
     def run(cls, imo_number):
         vessel_finder = VesselFinder()
         try:
+            vessel_finder.cookie_consent()
             data = vessel_finder.vessel_info(imo_number)
-            logging.info(data)
-        except Exception:
-            raise
         finally:
             vessel_finder.close_page()
+        return data
 
     def cookie_consent(self):
         """
@@ -43,6 +43,7 @@ class VesselFinder:
         """
         logging.info("Accepting cookies.")
         try:
+            self.driver.get(PAGE_URL)
             element_present = EC.element_to_be_clickable((By.XPATH, Locators.COOKIE_XPATH))
             WebDriverWait(self.driver, TIMEOUT).until(element_present)
             self.driver.find_elements_by_xpath(Locators.COOKIE_XPATH)[0].click()
@@ -57,10 +58,14 @@ class VesselFinder:
         :return: dictionary with vessel info
         """
         logging.info(f"Opening marinetraffic.com page with info about vessel: {imo_number}")
-        self.driver.get(f"{SHIP_URL}imo:{imo_number}")
-        self.cookie_consent()
+
+        self.driver.get(f"{PAGE_URL}/ais/details/ships//imo:{imo_number}")
+
+        element_present = EC.element_to_be_clickable((By.XPATH, Locators.SHIP_XPATH))
+        WebDriverWait(self.driver, TIMEOUT).until(element_present)
+
         page = etree.HTML(self.driver.page_source)
-        return json.loads(page.xpath(Locators.SHIP_DATA)[-1].replace("  ", ""))
+        return Vessel(**json.loads(page.xpath(Locators.SHIP_DATA)[-1].replace("  ", "")))
 
     def close_page(self):
         """
@@ -68,8 +73,3 @@ class VesselFinder:
         """
         logging.info("Closing page.")
         self.driver.close()
-
-
-if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
-    VesselFinder.run(9458028)
