@@ -17,7 +17,7 @@ class VesselFinder:
     """
     Class for accessing marinetraffic.com page.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize chrome driver with headless mode.
         """
@@ -31,7 +31,7 @@ class VesselFinder:
 
     def cookie_consent(self):
         """
-        Accept cookies.
+        Accept cookies. If timeout exceeded, exit code 1.
         """
         logging.info("Accepting cookies.")
         try:
@@ -42,7 +42,7 @@ class VesselFinder:
             logging.error("Timed out waiting for page to load.")
             sys.exit(1)
 
-    def vessel_info(self, imo_number: int):
+    def vessel_info(self, imo_number: int) -> dict:
         """
         Get real-time information about given vessel.
         :param imo_number: International Maritime Organization (IMO) number
@@ -58,7 +58,7 @@ class VesselFinder:
         page = etree.HTML(self.driver.page_source)
         return json.loads(page.xpath(Locators.SHIP_DATA)[-1].replace("  ", ""))
 
-    def close_page(self):
+    def close_page(self) -> None:
         """
         Close chrome driver.
         """
