@@ -11,7 +11,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 from libs.constants import Locators, TIMEOUT, PAGE_URL
-from libs.types import Vessel
 
 
 class VesselFinder:
@@ -24,18 +23,11 @@ class VesselFinder:
         """
         self.options = Options()
         self.options.headless = True
-        logging.debug("Initialising chrome driver.")
+        logging.debug("Initialising Chrome driver.")
         self.driver = webdriver.Chrome(options=self.options)
-
-    @classmethod
-    def run(cls, imo_number):
-        vessel_finder = VesselFinder()
-        try:
-            vessel_finder.cookie_consent()
-            data = vessel_finder.vessel_info(imo_number)
-        finally:
-            vessel_finder.close_page()
-        return data
+        logging.debug(f"Opening Chrome on page: {PAGE_URL}")
+        self.driver.get(PAGE_URL)
+        self.cookie_consent()
 
     def cookie_consent(self):
         """
@@ -43,7 +35,6 @@ class VesselFinder:
         """
         logging.info("Accepting cookies.")
         try:
-            self.driver.get(PAGE_URL)
             element_present = EC.element_to_be_clickable((By.XPATH, Locators.COOKIE_XPATH))
             WebDriverWait(self.driver, TIMEOUT).until(element_present)
             self.driver.find_elements_by_xpath(Locators.COOKIE_XPATH)[0].click()
@@ -57,7 +48,7 @@ class VesselFinder:
         :param imo_number: International Maritime Organization (IMO) number
         :return: dictionary with vessel info
         """
-        logging.info(f"Opening marinetraffic.com page with info about vessel: {imo_number}")
+        logging.info(f"Collecting vessel '{imo_number}' data.")
 
         self.driver.get(f"{PAGE_URL}/ais/details/ships//imo:{imo_number}")
 
@@ -65,7 +56,7 @@ class VesselFinder:
         WebDriverWait(self.driver, TIMEOUT).until(element_present)
 
         page = etree.HTML(self.driver.page_source)
-        return Vessel(**json.loads(page.xpath(Locators.SHIP_DATA)[-1].replace("  ", "")))
+        return json.loads(page.xpath(Locators.SHIP_DATA)[-1].replace("  ", ""))
 
     def close_page(self):
         """

@@ -5,29 +5,28 @@ from libs.vessel_finder import VesselFinder
 
 class VesselFinderApp:
     def __init__(self):
-        self.vessel_finder = VesselFinder()
+        self.vessel_app = VesselFinder()
 
     @property
     def vessels_list(self):
-        return [9458028, 9458028, 9458028,9458028,9458028,9458028,9458028,9458028]
+        return [9458028, 9458028, 9458028, 9458028, 9458028, 9458028, 9458028, 9458028]
 
-    def vessels_info(self):
+    def gather_vessels_data(self):
         vessels = []
-        logging.info("Collecting vessels informations.")
-        self.vessel_finder.cookie_consent()
-        try:
-            for imo_number in self.vessels_list:
-                vessels.append(self.vessel_finder.vessel_info(imo_number))
-        finally:
-            self.vessel_finder.close_page()
+        for vessel_number in self.vessels_list:
+            vessels.append(self.vessel_app.vessel_info(vessel_number))
         return vessels
+
+    def send_vessels_data_to_db(self, vessels_data):
+        pass
 
     @classmethod
     def run(cls):
-        logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+        logging.basicConfig(format='%(levelname)s %(asctime)s: %(message)s', level=logging.INFO)
         app = VesselFinderApp()
-        vessels = app.vessels_info()
+        vessels = app.gather_vessels_data()
         logging.info(vessels)
+        app.send_vessels_data_to_db(vessels)
 
 
 if __name__ == '__main__':
