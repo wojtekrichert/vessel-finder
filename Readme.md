@@ -6,3 +6,6 @@ App for gathering real-time information's about vessels location and current des
 Install chromedriver: 
 - on MacOS: `brew cask install chromedriver`
 - install requirements: `python -m pip install requirements.txt`
+### Run
+Run python script: 
+`python vessel_finder_app.py`
