@@ -9,6 +9,6 @@ class Locators:
     """
     Class for collecting all Selenium locators in one place
     """
-    COOKIE_XPATH: str = "//*[contains(text(), ' I ACCEPT ')]"
+    COOKIE_XPATH: str = "//*[contains(text(), 'AGREE')]"
     SHIP_DATA: str = "//script[@type='application/ld+json']/text()"
     SHIP_XPATH: str = "//*[contains(text(), 'IMO: ')]"
