@@ -13,21 +13,18 @@ class VesselFinderApp:
         return [9458028, 9458028, 9458028, 9458028, 9458028, 9458028, 9458028, 9458028]
 
     def gather_vessels_data(self) -> List[dict]:
-        vessels = []
-        for vessel_number in self.vessels_list:
-            vessels.append(self.vessel_app.vessel_info(vessel_number))
-        return vessels
+        return [self.vessel_app.vessel_info(vessel_number) for vessel_number in self.vessels_list]
 
-    def send_vessels_data_to_db(self, vessels_data: List[dict]):
-        pass
+    @staticmethod
+    def send_vessels_data_to_db(vessels_data: List[dict]):
+        for vessel in vessels_data:
+            logging.info(vessel)
 
     @classmethod
     def run(cls):
-        logging.basicConfig(format='%(levelname)s %(asctime)s: %(message)s', level=logging.INFO)
         app = VesselFinderApp()
         try:
             vessels = app.gather_vessels_data()
-            logging.info(vessels)
         finally:
             app.vessel_app.close_page()
 
@@ -35,4 +32,5 @@ class VesselFinderApp:
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(levelname)s %(asctime)s: %(message)s', level=logging.INFO)
     VesselFinderApp.run()
