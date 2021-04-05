@@ -4,19 +4,20 @@ import sys
 
 from lxml import etree
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-from libs.constants import Locators, TIMEOUT, PAGE_URL
+from libs.consts import PAGE_URL, TIMEOUT, Locators
 
 
 class VesselFinder:
     """
     Class for accessing marinetraffic.com page.
     """
+
     def __init__(self) -> None:
         """
         Initialize chrome driver with headless mode.
@@ -35,7 +36,9 @@ class VesselFinder:
         """
         logging.info("Accepting cookies.")
         try:
-            element_present = EC.element_to_be_clickable((By.XPATH, Locators.COOKIE_XPATH))
+            element_present = EC.element_to_be_clickable(
+                (By.XPATH, Locators.COOKIE_XPATH)
+            )
             WebDriverWait(self.driver, TIMEOUT).until(element_present)
             self.driver.find_elements_by_xpath(Locators.COOKIE_XPATH)[0].click()
         except TimeoutException:
