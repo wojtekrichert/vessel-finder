@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from libs.schemas import IMO, VesselLocation
 from libs.vessel_finder import VesselFinder
 
 
@@ -9,17 +10,17 @@ class VesselFinderApp:
         self.vessel_app = VesselFinder()
 
     @property
-    def vessels_list(self) -> List[int]:
-        return [9458028, 9458028, 9458028, 9458028, 9458028, 9458028, 9458028, 9458028]
+    def vessels_list(self) -> List[IMO]:
+        return [IMO(9458028)]
 
-    def gather_vessels_data(self) -> List[dict]:
+    def gather_vessels_data(self) -> List[VesselLocation]:
         return [
             self.vessel_app.vessel_info(vessel_number)
             for vessel_number in self.vessels_list
         ]
 
     @staticmethod
-    def send_vessels_data_to_db(vessels_data: List[dict]):
+    def send_vessels_data_to_db(vessels_data: List[VesselLocation]):
         for vessel in vessels_data:
             logging.info(vessel)
 
